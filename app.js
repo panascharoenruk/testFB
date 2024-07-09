@@ -5,25 +5,30 @@ const app = express()
 const port = 3000
 
 let forms = [];
-/* let questions = []; */
+
 app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
   res.send('Hello World!')
 })
 //get all
-app.get("/forms", (req, res) => {
+app.get("/getForms", (req, res) => {
   console.log(forms);
   res.json(forms);
 });
+//get all question
+app.get("/getQuestion", (req, res) => {
+  console.log(forms[0].Form.question);
+  res.json(forms[0].Form.question);
+});
 //get question by id
-app.get("/question/:id", (req, res) => {
+app.get("/getQuestionById/:id", (req, res) => {
   console.log(forms[0].Form.question[(parseInt(req.params.id)-1)]);
   res.json(forms[0].Form.question[(parseInt(req.params.id)-1)]);
 });
-//create
-app.post("/forms", (req, res) => {
 
+//create
+app.post("/createForms", (req, res) => {
   //loop question
   for(let i = 0; i < req.body.Form.question.length; i++){
     let checkChoice = [];
@@ -32,8 +37,6 @@ app.post("/forms", (req, res) => {
       checkChoice.push(req.body.Form.question[i].choice[j].correct);
     }
     //if choice have more than 1 correct answer
-    console.log("Number of correction:");
-    console.log(checkChoice.filter(Boolean).length);
     if(checkChoice.filter(Boolean).length > 1){
       //return error
       res.send({
@@ -49,12 +52,16 @@ app.post("/forms", (req, res) => {
 
 });
 
-//Update Json Data
-/* app.put("/forms", (req, res) => {
+//Update Form Data
+//what if pressed save and update whole form
+app.put("/forms", (req, res) => {
+  //clear old form
+  forms = [];
+  
   forms.push(req.body);
-  console.log(req.body);
+  
   res.send(forms);
-}); */
+});
 
 
 app.listen(port, () => {
