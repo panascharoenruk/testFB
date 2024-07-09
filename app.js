@@ -4,7 +4,7 @@ var bodyParser = require('body-parser')
 const app = express()
 const port = 3000
 
-let forms = [];
+var forms = {};
 
 app.use(bodyParser.json());
 
@@ -13,22 +13,22 @@ app.get('/', (req, res) => {
 })
 //get all
 app.get("/getForms", (req, res) => {
-  console.log(forms);
   res.json(forms);
 });
 //get all question
 app.get("/getQuestion", (req, res) => {
-  console.log(forms[0].Form.question);
-  res.json(forms[0].Form.question);
+  res.json(forms.Form.question);
 });
 //get question by id
 app.get("/getQuestionById/:id", (req, res) => {
-  console.log(forms[0].Form.question[(parseInt(req.params.id) - 1)]);
-  res.json(forms[0].Form.question[(parseInt(req.params.id) - 1)]);
+  console.log(forms.Form.question[(parseInt(req.params.id) - 1)]);
+  res.json(forms.Form.question[(parseInt(req.params.id) - 1)]);
 });
 
 //create
 app.post("/createForms", (req, res) => {
+  forms_test = req.body;
+
   //loop question
   for (let i = 0; i < req.body.Form.question.length; i++) {
     let checkChoice = [];
@@ -38,7 +38,7 @@ app.post("/createForms", (req, res) => {
     }
     //if choice have more than 1 correct answer
     if (checkChoice.filter(Boolean).length > 1) {
-      //return error
+      //response error message
       res.send({
         message: "There shouldn't have more than one correct answer!"
       });
@@ -47,21 +47,22 @@ app.post("/createForms", (req, res) => {
     checkChoice = [];
   }
 
-  forms.push(req.body);
-  res.send(forms[0]);
-
+  forms = req.body;
+  res.send(forms);
+  
+  
 });
 
-//Update Form Data
+/* //Update Form Data
 //what if pressed save and update whole form
 app.put("/updateForms", (req, res) => {
   //clear old form
-  forms = [];
+  forms = {};
 
-  forms.push(req.body);
+  forms = req.body;
 
   res.send(forms);
-});
+}); */
 
 
 app.listen(port, () => {
