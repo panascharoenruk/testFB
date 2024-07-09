@@ -29,6 +29,7 @@ app.get("/getQuestion", (req, res) => {
 app.get("/getQuestionById/:id", (req, res) => {
   
   try{
+    //check if Id exist
     if(forms.Form.question.length >= parseInt(req.params.id)){
       console.log(forms.Form.question[(parseInt(req.params.id) - 1)]);
       res.json(forms.Form.question[(parseInt(req.params.id) - 1)]);
