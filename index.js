@@ -6,7 +6,6 @@ const app = express()
 const port = 3000
 
 var forms = [];
-let questions = [];
 
 app.use(bodyParser.json());
 
@@ -20,38 +19,28 @@ app.get("/getForms", (req, res) => {
   console.log(forms[0].formName);
   res.json(forms);
 });
-//get all question
-app.get("/getQuestion", (req, res) => {
-  try {
-    questions = forms[0].form[0].question;
-    res.json(questions);
-  } catch (err) {
-    res.send(forms);
-  }
 
-});
 //get question by id
-app.get("/getQuestionById/:id", (req, res) => {
+app.get("/getFormById/:id", (req, res) => {
 
   try {
     //check if Id exist
-    if (forms[0].form[0].question.length >= parseInt(req.params.id)) {
-      console.log(forms[0].form[0].question[(parseInt(req.params.id) - 1)]);
-      res.json(forms[0].form[0].question[(parseInt(req.params.id) - 1)]);
+    if (forms.length >= parseInt(req.params.id)) {
+      console.log(forms[(parseInt(req.params.id) - 1)]);
+      res.json(forms[(parseInt(req.params.id) - 1)]);
     } else {
       res.status(400).send({
-        message: "Question didn't exist"
+        message: "Forms didn't exist"
       });
     }
   } catch (err) {
-    res.send(err);
+    res.status(400).send(err);
   }
 });
 
 //create
-app.post("/createForms", /* validate(formSchema), */ (req, res) => {
+app.post("/createForms", /* validate(formSchema), */(req, res) => {
 
-  console.log("pass3");
   //loop question
   for (let i = 0; i < forms.length; i++) {
     if (req.body.formName == forms[i].formName) {
@@ -86,23 +75,26 @@ app.post("/createForms", /* validate(formSchema), */ (req, res) => {
 
 //Update
 app.patch("/updateFormById/:id", (req, res) => {
-  forms.splice(parseInt(req.params.id) - 1, parseInt(req.params.id) - 1, req.body);
-  /* let oldData = forms[0].filter(function (entry){
-    return forms[parseInt(req.params.id)]
-  }); */
+forms.splice(parseInt(req.params.id) - 1, parseInt(req.params.id), req.body);
   console.log(forms);
-  /* res.send(oldData); */
   res.send({
     message: "successfully update!"
   });
+  
 });
 
 app.delete("/deleteFormById/:id", (req, res) => {
-  console.log("Deleted")
-  forms.splice(parseInt(req.params.id) - 1, parseInt(req.params.id) - 1);
-  res.send({
-    message: "Successfully deleted Form " + req.params.id
-  });
+  if (parseInt(req.params.id) == 0 || parseInt(req.params.id) > forms.length) {
+    res.status(400).send({
+      message: "This Form Id didn't exist: " + req.params.id
+    });
+    return null;
+  } else {
+    forms = forms.slice(parseInt(req.params.id));
+    res.send({
+      message: "Successfully deleted Form " + req.params.id
+    });
+  }
 });
 
 //nodemon, เคสตั้งชื่อตัวแปร, status code, methodapi, validate ZOD, ชื่อฟอร์มซ้ำ, ลบด้วยไอดี, updateById
