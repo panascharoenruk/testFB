@@ -1,6 +1,5 @@
 const express = require('express')
 var bodyParser = require('body-parser')
-var { z } = require('zod')
 
 const app = express()
 const port = 3000
@@ -9,7 +8,7 @@ var forms = [];
 
 app.use(bodyParser.json());
 
-function validateIdInput(id){
+function validateIdInput(id) {
   if (id == 0 || id > forms.length) {
     return true;
   } else {
@@ -48,7 +47,7 @@ app.get("/getFormById/:id", (req, res) => {
 app.post("/createForms", /* validate(formSchema), */(req, res) => {
 
   //loop question
-  if(forms.find((form) => {return form.formName == req.body.formName})){
+  if (forms.find((form) => { return form.formName == req.body.formName })) {
     res.status(400).send({
       message: "Form name is already in used!"
     });
@@ -80,44 +79,52 @@ app.post("/createForms", /* validate(formSchema), */(req, res) => {
 
 //Update
 app.patch("/updateFormById/:id", (req, res) => {
-  if(forms.find((form) => {return form.formName == req.body.formName})){
+  if (forms.find((form) => { return form.formName == req.body.formName })) {
     res.status(400).send({
       message: "Form name is already in used!"
     });
     return null;
   }
-  if(validateIdInput(parseInt(req.params.id))){
+  if (validateIdInput(parseInt(req.params.id))) {
     res.status(400).send({
       message: "This Form Id didn't exist: " + req.params.id
     });
     return null;
   }
-  forms.splice(parseInt(req.params.id) - 1, parseInt(req.params.id), req.body);
-  console.log(forms);
-  res.send({
-    message: "successfully update!"
+  const result = forms.map((val, index) => {
+    if (index == parseInt(req.params.id) - 1) {
+      val = req.body;
+    }
+    return val;
   });
+  console.log(result);
+  forms = result;
+  res.send(forms);
 });
 //Update single part by id
 app.patch("/updatePartById/:id", (req, res) => {
-  forms[parseInt(req.params.id)].formName = req.body.formName;
-  res.send({
-    message: "update name succesfully!"
+  //forms[parseInt(req.params.id)].formName = req.body.formName;
+  const result = forms.map((val, index) => {
+    if (index == parseInt(req.params.id) - 1) {
+      val.formName = req.body.formName;
+    }
+    return val;
   });
+  res.send(result);
 });
 
 app.delete("/deleteFormById/:id", (req, res) => {
-  if (parseInt(req.params.id) == 0 || parseInt(req.params.id) > forms.length) {
+  if (validateIdInput(parseInt(req.params.id))) {
     res.status(400).send({
       message: "This Form Id didn't exist: " + req.params.id
     });
     return null;
-  } else {
-    forms = forms.slice(parseInt(req.params.id));
-    res.send({
-      message: "Successfully deleted Form " + req.params.id
-    });
   }
+  forms = forms.slice(parseInt(req.params.id));
+  res.send({
+    message: "Successfully deleted Form " + req.params.id
+  });
+
 });
 
 //nodemon, เคสตั้งชื่อตัวแปร, status code, methodapi, ชื่อฟอร์มซ้ำ, ลบด้วยไอดี, updateById
