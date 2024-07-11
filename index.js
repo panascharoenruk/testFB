@@ -50,11 +50,11 @@ app.post("/createForms", /* validate(formSchema), */(req, res) => {
   //loop question
   if(forms.find((form) => {return form.formName == req.body.formName})){
     res.status(400).send({
-      message: "Question name is already in used!"
+      message: "Form name is already in used!"
     });
     return null;
   }
-  
+
   for (let i = 0; i < req.body.question.length; i++) {
 
     let checkChoice = [];
@@ -80,6 +80,12 @@ app.post("/createForms", /* validate(formSchema), */(req, res) => {
 
 //Update
 app.patch("/updateFormById/:id", (req, res) => {
+  if(forms.find((form) => {return form.formName == req.body.formName})){
+    res.status(400).send({
+      message: "Form name is already in used!"
+    });
+    return null;
+  }
   if(validateIdInput(parseInt(req.params.id))){
     res.status(400).send({
       message: "This Form Id didn't exist: " + req.params.id
