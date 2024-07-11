@@ -9,7 +9,13 @@ var forms = [];
 
 app.use(bodyParser.json());
 
-
+function validateIdInput(id){
+  if (id == 0 || id > forms.length) {
+    return true;
+  } else {
+    return false;
+  }
+}
 
 app.get('/', (req, res) => {
   res.json(forms);
@@ -42,14 +48,13 @@ app.get("/getFormById/:id", (req, res) => {
 app.post("/createForms", /* validate(formSchema), */(req, res) => {
 
   //loop question
-  for (let i = 0; i < forms.length; i++) {
-    if (req.body.formName == forms[i].formName) {
-      res.status(400).send({
-        message: "Question name is already in used!"
-      });
-      return null;
-    }
+  if(forms.find((form) => {return form.formName == req.body.formName})){
+    res.status(400).send({
+      message: "Question name is already in used!"
+    });
+    return null;
   }
+  
   for (let i = 0; i < req.body.question.length; i++) {
 
     let checkChoice = [];
@@ -75,12 +80,24 @@ app.post("/createForms", /* validate(formSchema), */(req, res) => {
 
 //Update
 app.patch("/updateFormById/:id", (req, res) => {
-forms.splice(parseInt(req.params.id) - 1, parseInt(req.params.id), req.body);
+  if(validateIdInput(parseInt(req.params.id))){
+    res.status(400).send({
+      message: "This Form Id didn't exist: " + req.params.id
+    });
+    return null;
+  }
+  forms.splice(parseInt(req.params.id) - 1, parseInt(req.params.id), req.body);
   console.log(forms);
   res.send({
     message: "successfully update!"
   });
-  
+});
+//Update single part by id
+app.patch("/updatePartById/:id", (req, res) => {
+  forms[parseInt(req.params.id)].formName = req.body.formName;
+  res.send({
+    message: "update name succesfully!"
+  });
 });
 
 app.delete("/deleteFormById/:id", (req, res) => {
@@ -97,8 +114,8 @@ app.delete("/deleteFormById/:id", (req, res) => {
   }
 });
 
-//nodemon, เคสตั้งชื่อตัวแปร, status code, methodapi, validate ZOD, ชื่อฟอร์มซ้ำ, ลบด้วยไอดี, updateById
-//typescript, docker
+//nodemon, เคสตั้งชื่อตัวแปร, status code, methodapi, ชื่อฟอร์มซ้ำ, ลบด้วยไอดี, updateById
+//validate ZOD, typescript, docker
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
