@@ -1,0 +1,14 @@
+[
+  {
+    "id": "653b318cea73f8500059a8df",
+    "name": "Ari shop",
+    "communityId": "653b306edbccbddcbbddb605",
+    "earnruleIds": ["653b30d3dbccbddcbbddb608", "653b30efdbccbddcbbddb609"]
+  },
+  {
+    "id": "653b31aeea73f8500059a8e0",
+    "name": "Onnut shop",
+    "communityId": "653b3088dbccbddcbbddb606",
+    "earnruleIds": ["653b30efdbccbddcbbddb609", "653b3112dbccbddcbbddb60a"]
+  }
+]

@@ -1,0 +1,68 @@
+[
+  {
+    "id": "653b30d3dbccbddcbbddb608",
+    "name": "1st rule",
+    "type": "rule",
+    "period": "ALL_TIME",
+    "startDate": "2023-10-12T00:00:00.000Z",
+    "endDate": "2024-10-12T00:00:00.000Z",
+    "nextUpdateEarnrule": "2023-10-13T00:00:00.000Z",
+    "picture": "picture",
+    "frequency": {
+      "right": 3,
+      "frequency": "DAILY"
+    },
+    "setting": {
+      "resultType": "FIXED",
+      "value": {
+        "amount": 1,
+        "coin": 100
+      }
+    },
+    "active": true
+  },
+  {
+    "id": "653b30efdbccbddcbbddb609",
+    "name": "2nd rule",
+    "type": "rule",
+    "period": "ALL_TIME",
+    "startDate": "2023-10-12T00:00:00.000Z",
+    "endDate": "2024-10-12T00:00:00.000Z",
+    "nextUpdateEarnrule": "2023-10-13T00:00:00.000Z",
+    "picture": "picture",
+    "frequency": {
+      "right": 5,
+      "frequency": "DAILY"
+    },
+    "setting": {
+      "resultType": "FIXED",
+      "value": {
+        "amount": 1,
+        "coin": 100
+      }
+    },
+    "active": true
+  },
+  {
+    "id": "653b3112dbccbddcbbddb60a",
+    "name": "3rd rule",
+    "type": "rule",
+    "period": "ALL_TIME",
+    "startDate": "2023-10-12T00:00:00.000Z",
+    "endDate": "2024-10-12T00:00:00.000Z",
+    "nextUpdateEarnrule": "2023-10-13T00:00:00.000Z",
+    "picture": "picture",
+    "frequency": {
+      "right": 10,
+      "frequency": "WEEKLY"
+    },
+    "setting": {
+      "resultType": "FIXED",
+      "value": {
+        "amount": 1,
+        "coin": 100
+      }
+    },
+    "active": true
+  }
+]
