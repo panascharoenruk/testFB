@@ -1,5 +1,7 @@
 const express = require('express')
 var bodyParser = require('body-parser')
+const { z } = require("zod");
+
 
 const app = express()
 const port = 3000
@@ -7,6 +9,43 @@ const port = 3000
 var forms = [];
 
 app.use(bodyParser.json());
+
+const choiceSchema = z.object({
+  description: z.string({
+    required_error: "description is required"
+  })
+});
+const questionSchema = z.object({
+  questionName: z.string({
+    required_error: "questionName is required"
+  }),
+  choice: z.array(choiceSchema)
+});
+const formSchema = z.object({
+  
+    formName: z.string({
+      required_error: "formName is required"
+    }),
+    question: z.array(questionSchema)
+  
+    
+});
+
+const formArraySchema = formSchema;
+
+const validate = (schema) => (req, res, next) => {
+  try {
+    schema.parse({
+      body: req.body,
+      query: req.query,
+      params: req.params,
+    });
+
+    next();
+  } catch (err) {
+    return res.status(400).send(err.errors);
+  }
+};
 
 function validateIdInput(id) {
   if (id == 0 || id > forms.length) {
@@ -44,8 +83,8 @@ app.get("/getFormById/:id", (req, res) => {
 });
 
 //create
-app.post("/createForms", /* validate(formSchema), */(req, res) => {
-
+app.post("/createForms", /* validate(formArraySchema), */ (req, res) => {
+  console.log(req.body);
   //loop question
   if (forms.find((form) => { return form.formName == req.body.formName })) {
     res.status(400).send({
@@ -79,18 +118,19 @@ app.post("/createForms", /* validate(formSchema), */(req, res) => {
 
 //Update
 app.patch("/updateFormById/:id", (req, res) => {
-  if (forms.find((form) => { return form.formName == req.body.formName })) {
-    res.status(400).send({
-      message: "Form name is already in used!"
-    });
-    return null;
-  }
   if (validateIdInput(parseInt(req.params.id))) {
     res.status(400).send({
       message: "This Form Id didn't exist: " + req.params.id
     });
     return null;
   }
+  if (forms.find((form) => { return form.formName == req.body.formName })) {
+    res.status(400).send({
+      message: "Form name is already in used!"
+    });
+    return null;
+  }
+  
   const result = forms.map((val, index) => {
     if (index == parseInt(req.params.id) - 1) {
       val = req.body;
@@ -101,12 +141,14 @@ app.patch("/updateFormById/:id", (req, res) => {
   forms = result;
   res.send(forms);
 });
+
 //Update single part by id
 app.patch("/updatePartById/:id", (req, res) => {
   //forms[parseInt(req.params.id)].formName = req.body.formName;
+
   const result = forms.map((val, index) => {
     if (index == parseInt(req.params.id) - 1) {
-      val.formName = req.body.formName;
+      val = req.body;
     }
     return val;
   });
@@ -128,7 +170,7 @@ app.delete("/deleteFormById/:id", (req, res) => {
 });
 
 //nodemon, เคสตั้งชื่อตัวแปร, status code, methodapi, ชื่อฟอร์มซ้ำ, ลบด้วยไอดี, updateById
-//validate ZOD, typescript, docker
+//validate ZOD, typescript, docker, mongoDB, prisma
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
