@@ -1,7 +1,6 @@
 import { Prisma, PrismaClient } from '@prisma/client'
 import { NextFunction, Request, Response } from 'express'
 import { PrismaHelper } from '../../utils'
-import passportLocalMongoose from 'passport-local-mongoose';
 import passport from 'passport';
 import jwt from 'jsonwebtoken'
 import '../../configs/passport'
@@ -21,24 +20,21 @@ export async function getAllUsers(req: Request, res: Response) {
 }
 export async function userLogin(req: Request, res: Response, next: NextFunction) {
   passport.authenticate('local', { session: false }, (err: any, user: any, info: any) => {
-    try{
-    if (err) return next(err)
-    console.log(user);
-    if (user) {
-      const token = jwt.sign(user, 'yWnVtr8B8u') //error hereeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
-      return res.json({ user, token })
-    } else {
-      return res.status(422).json(info)
-    }} catch(error){
+    try {
+      if (err) return next(err)
+      console.log(user);
+      if (user) {
+        const token = jwt.sign(user, 'yWnVtr8B8u')
+        return res.json({ user, token })
+      } else {
+        return res.status(422).json(info)
+      }
+    } catch (error) {
       console.log(error)
     }
   })(req, res, next);
-
-
 }
-export async function userLogOut(req: Request, res: Response) {
 
-}
 export async function createUser(req: Request, res: Response) {
   try {
     const data = await db.create({

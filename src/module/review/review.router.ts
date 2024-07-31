@@ -3,7 +3,7 @@ import * as reviewController from './review.controller'
 import { z } from 'zod'
 import { validatorInput } from '../../middleware/validatorInput'
 import { Rating } from '@prisma/client'
-import dayjs from 'dayjs'
+
 //เพิ่่มเงื่อนไขระยะเวลาการแก้ไข review
 export const reviewSchema = z.object({
   rating: z.nativeEnum(Rating),

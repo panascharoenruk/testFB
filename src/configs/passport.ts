@@ -13,10 +13,12 @@ passport.use(new LocalStrategy({
     async function (username, password, done) {
         try {
             const user = await prisma.user.findFirst(
-                { where: { email: username } },
+                { where: { email: username,
+                    password: password
+                 } },
             );
             if (!user) {
-                return done(null, false, { message: "Incorrect email" });
+                return done(null, false, { message: "Incorrect email or password" });
             }
             return done(null, user);
         } catch (error) {
