@@ -1,24 +1,24 @@
 import { Router } from 'express'
 import * as userController from './user.controller'
-import { userUseEarnRule } from '../common/useruseearnrule.controller'
-import { validatorInput } from '../../middleware/validatorInput'
 import { z } from 'zod'
-import { Status } from '@prisma/client'
+import { validatorInput } from '../../middleware/validatorInput'
+import passportLocalMongoose from 'passport-local-mongoose';
+import passport from 'passport';
+import { isLoggedIn } from '../../middleware/auth'
 
 export const userSchema = z.object({
-  name: z.string(),
-  organizationId: z.string(),
-  status: z.nativeEnum(Status).optional()
+  email: z.string(),
+  password: z.string(),
+  name: z.string()
 })
 
 const router = Router()
 
 router.get('/', userController.getAllUsers)
-router.get('/:id', userController.getUserById)
 router.post('/', validatorInput(userSchema), userController.createUser)
-router.put('/user-use-earnrule', userUseEarnRule) //user use earnrule @ shop
-router.put('/:id', validatorInput(userSchema), userController.updateUser)
-router.put('/earnrule/:id', userController.userAddEarnrule)
+router.put('/:id', userController.updateUser)
+router.put('/game/:id', userController.userAddGame)
 router.delete('/:id', userController.deleteUser)
-
+router.post('/login', userController.userLogin);
+router.post('/logout', userController.userLogOut);
 export default router

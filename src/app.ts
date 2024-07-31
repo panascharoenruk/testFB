@@ -1,15 +1,15 @@
-import express, { Application, Request, Response } from 'express'
+import express, { Application, NextFunction, Request, Response } from 'express'
+import { Prisma, PrismaClient } from '@prisma/client'
 import { json, urlencoded } from 'body-parser'
 import cors from 'cors'
 import morgan from 'morgan'
-
+import dayjs from 'dayjs'
+import publisherRouter from './module/publisher/publisher.router'
+import gameRouter from './module/game/game.router'
 import userRouter from './module/user/user.router'
-import organizationRouter from './module/organization/organization.router'
-import adminRouter from './module/admin/admin.router'
-import earnRuleRouter from './module/earn-rule/earnrule.router'
-import communityRouter from './module/community/community.router'
-import shopRouter from './module/shop/shop.router'
-
+import reviewRouter from './module/review/review.router'
+import { Strategy as LocalStrategy } from 'passport-local';
+import './configs/passport'
 const PORT = 8080
 
 const app: Application = express()
@@ -20,20 +20,20 @@ app.use(urlencoded({ extended: true }))
 app.use(json())
 app.use(cors())
 
-// http://localhost:8080/test
+const prisma = new PrismaClient()
+const db = prisma.user
 
-//Routes
-app.use('/api/shop', shopRouter)
-app.use('/api/community', communityRouter)
-app.use('/api/earnrule', earnRuleRouter)
+app.use('/api/publisher', publisherRouter)
+app.use('/api/game', gameRouter)
 app.use('/api/user', userRouter)
-app.use('/api/organization', organizationRouter)
-app.use('/api/admin', adminRouter)
+app.use('/api/review', reviewRouter)
 
-// run yarn start
+
 app.get('/test', (req: Request, res: Response) => {
+  var now = dayjs().format()
+  console.log(now)
   res.send('Hello World!')
-})
+}) 
 
 app.listen(PORT, () => {
   console.log(`Core API is running on ${PORT}`)

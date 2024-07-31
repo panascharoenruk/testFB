@@ -1,110 +1,57 @@
 import { Prisma, PrismaClient } from '@prisma/client'
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import { PrismaHelper } from '../../utils'
-import { newUser } from './user.logic'
-
+import passportLocalMongoose from 'passport-local-mongoose';
+import passport from 'passport';
+import jwt from 'jsonwebtoken'
+import '../../configs/passport'
 const prisma = new PrismaClient()
 
 const db = prisma.user
 
-const getQuery = (req: Request) => {
-  const { name } = req.query
-  const initQuery = <Prisma.UserFindManyArgs>PrismaHelper.handleQuery(req)
-  const query = PrismaHelper.initWhereQuery(initQuery, ['name'])
-  if (name) {
-    query.where.name = {
-      contains: name as string,
-      mode: 'insensitive'
-    }
-  }
-
-  return query
-}
-
-// export async function getAllUsers(req: Request, res: Response) {
-//   try {
-//     const { name } = req.query
-//     const where: Record<string, unknown> = {}
-//     if (name) {
-//       const userName = {
-//         contains: name as string,
-//         mode: 'insensitive'
-//       }
-//       where.name = userName
-//     }
-
-//     const users = await prisma.user.findMany({
-//       where: where,
-//       include: {
-//         earnrule: true
-//       }
-//     })
-//     res.status(200).json({ data: users })
-//   } catch (error) {
-//     res.status(400).json({ message: 'error', error })
-//   }
-// }
 
 export async function getAllUsers(req: Request, res: Response) {
   try {
-    const query = getQuery(req)
-    const data = await prisma.user.findMany(query)
+    const data = await prisma.user.findMany()
     res.status(200).json({ data })
   } catch (error) {
+    console.log(error);
     res.status(400).json({ message: 'error', error })
   }
 }
-
-export async function getUserById(req: Request, res: Response) {
-  try {
-    const user = await prisma.user.findUnique({
-      where: {
-        id: req.params.id
-      }
-    })
-    if (!user) {
-      res.status(404).json({ message: 'Not Found' })
-      return
+export async function userLogin(req: Request, res: Response, next: NextFunction) {
+  passport.authenticate('local', { session: false }, (err: any, user: any, info: any) => {
+    try{
+    if (err) return next(err)
+    console.log(user);
+    if (user) {
+      const token = jwt.sign(user, 'yWnVtr8B8u') //error hereeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+      return res.json({ user, token })
+    } else {
+      return res.status(422).json(info)
+    }} catch(error){
+      console.log(error)
     }
-    res.status(200).json({ data: user })
-  } catch (error) {
-    res.status(400).json({ message: 'error', error })
-  }
-}
+  })(req, res, next);
 
+
+}
+export async function userLogOut(req: Request, res: Response) {
+
+}
 export async function createUser(req: Request, res: Response) {
   try {
     const data = await db.create({
+
       data: {
-        ...newUser(req.body)
+        ...req.body
       }
     })
-
-    res.status(200).json({ message: 'community Created', data })
+    res.status(200).json({ message: 'User Created', data })
   } catch (error) {
     res.status(400).json({ message: 'create fail', error })
   }
 }
-// export async function createUser(req: Request, res: Response) {
-//   try {
-//     if (Array.isArray(req.body)) {
-//       await prisma.user.createMany({
-//         data: req.body
-//       })
-//       res.status(200).json({ message: 'users Created' })
-//       return
-//     } else {
-//       await prisma.user.create({
-//         data: {
-//           ...req.body
-//         }
-//       })
-//       res.status(200).json({ message: 'user Created' })
-//     }
-//   } catch (error) {
-//     res.status(400).json({ message: 'error', error })
-//   }
-// }
 
 export async function updateUser(req: Request, res: Response) {
   try {
@@ -131,58 +78,6 @@ export async function updateUser(req: Request, res: Response) {
   }
 }
 
-export async function userAddEarnrule(req: Request, res: Response) {
-  try {
-    const user = await prisma.user.findUnique({
-      where: {
-        id: req.params.id
-      }
-    })
-
-    const userEarnrules = user?.earnruleIds
-    const checkEarnrule = req.body.earnruleIds.some((val: string) =>
-      userEarnrules?.includes(val)
-    )
-
-    const earnrule = await prisma.earnrule.findMany({
-      where: {
-        id: {
-          in: req.body.earnruleIds
-        }
-      }
-    })
-
-    if (!user) {
-      res.status(404).json({ message: 'User is not found' })
-      return
-    }
-
-    if (earnrule.length !== req.body.earnruleIds.length) {
-      res.status(404).json({ message: 'Earn Rule Not Found' })
-      return
-    }
-
-    if (checkEarnrule) {
-      res.status(404).json({ message: 'Earn Rule Already Exist' })
-      return
-    }
-
-    await prisma.user.update({
-      where: {
-        id: req.params.id
-      },
-      data: {
-        earnruleIds: {
-          push: req.body.earnruleIds
-        }
-      }
-    })
-    res.status(200).json({ message: 'Earn rule added to User' })
-  } catch (error) {
-    res.status(400).json({ message: 'error', error })
-  }
-}
-
 export async function deleteUser(req: Request, res: Response) {
   try {
     const user = await prisma.user.findUnique({
@@ -200,6 +95,50 @@ export async function deleteUser(req: Request, res: Response) {
       }
     })
     res.status(200).json({ message: 'user Deleted' })
+  } catch (error) {
+    res.status(400).json({ message: 'error', error })
+  }
+}
+
+export async function userAddGame(req: Request, res: Response) {
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: req.params.id,
+      },
+    })
+
+    const game = await prisma.game.findMany({
+      where: {
+        id: {
+          in: req.body.gameIds
+        }
+      }
+    })
+
+    console.log(game);
+    if (!user) {
+      res.status(404).json({ message: 'user is not found' })
+      return
+    }
+    if (!game) {
+      console.log("Game is not found");
+      res.status(404).json({ message: 'game is not found' })
+      return
+    }
+
+    const result = await prisma.user.update({
+      where: {
+        id: req.params.id
+      },
+      data: {
+        gameId: {
+          push: req.body.gameId
+        }
+      }
+    })
+    console.log(result)
+    res.status(200).json({ message: 'successful update game into user' })
   } catch (error) {
     res.status(400).json({ message: 'error', error })
   }
